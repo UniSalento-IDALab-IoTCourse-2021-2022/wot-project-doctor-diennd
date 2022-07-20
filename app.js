@@ -1,10 +1,20 @@
 const express = require("express");
-const WebSocket = require("ws");
-const path = require("path");
-const mongodb = require("mongodb");
-const mqtt = require("mqtt");
+//const WebSocket = require("ws");
+//const path = require("path");
+//const mongodb = require("mongodb");
+//const mqtt = require("mqtt");
 require("dotenv").config();
 
+const app = express();
+const router = express.Router();
+
+//add the router
+app.use('/', router);
+app.listen(process.env.port || 8080);
+
+console.log('Running at Port 8080');
+
+/*
 //console.log(process.env);
 //const client = mqtt.connect(process.env.LOCALHOST)
 const client = mqtt.connect("mqtt://broker.hivemq.com");
@@ -12,8 +22,6 @@ const topicName = "aedes/test";
 
 const MongoClient = mongodb.MongoClient;
 const uri = "mongodb://localhost/";
-const app = express();
-const router = express.Router();
 
 
 const wss = new WebSocket.Server({ port: 3001 });
@@ -25,12 +33,6 @@ wss.on("connection", function connection(ws) {
     });
     ws.send("Client recording...");
 });
-
-//add the router
-app.use('/', router);
-app.listen(process.env.port || 8080);
-
-console.log('Running at Port 8080');
 
 router.get('/login',function(req,res){
     res.sendFile(path.join(__dirname+'/Web/Doctor/login.html'));
@@ -131,4 +133,4 @@ client.on("message", (topic, message, packet) => {
 client.on("packetsend", (packet) => {
     console.log(packet, "packet2");
 });
-
+*/
