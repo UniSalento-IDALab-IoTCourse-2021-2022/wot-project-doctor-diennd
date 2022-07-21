@@ -326,7 +326,7 @@
     };
     // draw chart on load
     let chart = new google.visualization.LineChart(
-            document.getElementById("overview-chart")
+            document.getElementById("overview-chart-1")
     );
     chart.draw(data, options);
     // interval for adding new data every 250ms
@@ -347,7 +347,7 @@
   }
 </script>
 <script type="text/javascript">
-  google.charts.load('current', {'packages':['gauge']});
+  google.charts.load('current', {'packages':['gauge','corechart', 'line']});
   google.charts.setOnLoadCallback(drawChart);
 
   function drawChart() {
@@ -374,6 +374,10 @@
     var pulse_rate_data = google.visualization.arrayToDataTable([
       ['Label', 'Value'],
       ['BPM', 60]
+    ]);
+    var overview_data = google.visualization.arrayToDataTable([
+      ["Second", "Resting BP", "Cholesterol", "Fasting BS", "Max HR"],
+      [0, 0, 0, 0, 0]
     ]);
 
     var options = [
@@ -424,6 +428,21 @@
         greenFrom: 150, greenTo: 200,
         minorTicks: 5
       },
+      {
+        hAxis: {
+          title: "Time (5x)"
+        },
+        vAxis: {
+          title: "Value"
+        },
+        animation:{
+          duration: 1000,
+          easing: 'out',
+        },
+        //curveType: 'function',
+        //smoothline: 'true',
+        legend: { position: 'top' }
+      },
     ];
 
     var hf_prediction = new google.visualization.Gauge(document.getElementById('hf-prediction-chart'));
@@ -432,6 +451,8 @@
     var fasting_bs = new google.visualization.Gauge(document.getElementById('fasting-bs-chart'));
     var resting_ecg = new google.visualization.Gauge(document.getElementById('resting-ecg-chart'));
     var pulse_rate = new google.visualization.Gauge(document.getElementById('pulse-rate-chart'));
+    // draw overview chart
+    var overview_chart = new google.visualization.LineChart(document.getElementById("overview-chart"));
 
     hf_prediction.draw(hf_prediction_data, options[0]);
     resting_bp.draw(resting_bp_data, options[1]);
@@ -439,19 +460,30 @@
     fasting_bs.draw(fasting_bs_data, options[3]);
     resting_ecg.draw(resting_ecg_data, options[4]);
     pulse_rate.draw(pulse_rate_data, options[5]);
+    overview_chart.draw(overview_data, options[6]);
 
-
+    let index = 0;
     socketExample.onmessage = function (event) {
       const object = JSON.parse(event.data);
       console.log('Websocket received: ', object);
 
-      // hf_prediction_data.setValue(0, 1, object.predicted);
-      hf_prediction_data.setValue(0, 1, (Math.random()>=0.5)? 1 : 0);
+      hf_prediction_data.setValue(0, 1, object.predicted);
+      //hf_prediction_data.setValue(0, 1, (Math.random()>=0.5)? 1 : 0);
       resting_bp_data.setValue(0, 1, object.restingBP);
       cholesterol_data.setValue(0, 1, object.cholesterol);
       fasting_bs_data.setValue(0, 1, object.fastingBS);
       resting_ecg_data.setValue(0, 1, object.restingECG);
       pulse_rate_data.setValue(0, 1, object.MaxHR);
+
+      //let index = 0;
+      let random1 = object.restingBP;
+      let random2 = object.cholesterol;
+      let random3 = object.fastingBS;
+      let random4 = object.MaxHR;
+      overview_data.addRow(
+              [index, random1, random2, random3, random4]
+      );
+      index++;
 
       hf_prediction.draw(hf_prediction_data, options[0]);
       resting_bp.draw(resting_bp_data, options[1]);
@@ -459,6 +491,7 @@
       fasting_bs.draw(fasting_bs_data, options[3]);
       resting_ecg.draw(resting_ecg_data, options[4]);
       pulse_rate.draw(pulse_rate_data, options[5]);
+      overview_chart.draw(overview_data, options[6]);
     };
   }
 </script>
